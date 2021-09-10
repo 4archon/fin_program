@@ -1,5 +1,6 @@
 import numpy_financial as np_f
 import math
+import pandas as pd
 
 
 class FinIndicators:
@@ -35,6 +36,25 @@ class FinIndicators:
         # системные вызовы
         self.__credit_settlements()
         self.__conversion_tuple()
+        # не числовые параметры для удобного вывода
+        self.name_properties_list = ['Выручка', 'Расходы', 'CAPEX', 'Оборотный капитал', 'Финансирование',
+                                     'За счет акционера',
+                                     'За счет реинвестировани средств акционерного денежного потока',
+                                     'За счет заемных средств', 'EBITDA', 'Амортизация', 'EBIT', 'Проценты по кредитам',
+                                     'EBT', 'Налог на прибыль', 'Чистая прибыль', 'Изменение оборотного капитала',
+                                     'FCFF', 'Кумулятивный FCFF', 'DCF по FCFF', 'Кумулятивный DCF по FCFF',
+                                     'Изменение долга', 'FCFE', 'Кумулятивный FCFE', 'DCF по FCFE',
+                                     'Кумулятивный DCF по FCFE']
+        self.properties_list = [self.revenue, self.costs, self.capex, self.opex, self.costs, self.financing_equity,
+                                self.financing_reinvestment, self.financing_credit, self.ebitda, self.amortization,
+                                self.ebit,
+                                self.interests, self.ebt, self.taxes, self.net_profit, self.change_working_cap,
+                                self.fcff,
+                                self.cumulative_fcff, self.dcf_fcff, self.cumulative_dcf_fcff, self.debt_change,
+                                self.fcfe,
+                                self.cumulative_fcfe, self.dcf_fcfe, self.cumulative_dcf_fcfe]
+        self.name_indicators_list = ['Ставка дисконтирования', 'Срок окупаемости, лет', 'DPP, лет', 'NPV', 'irr, %',
+                                     'pi, %']
 
     def __credit_settlements(self):
         def percent_balance(credit_funds: (int, float), credit_percentage: float, number_of_credit_periods: int, i1):
@@ -63,7 +83,8 @@ class FinIndicators:
                                                                  self.__number_of_credit_periods[i], i)]
             counter_sum = 0
             for j in self.__credits_matrix_balances:
-                counter_sum += j[i]
+                if i <= len(j) - 1:
+                    counter_sum += j[i]  # ошибка здесь
             self.__credit_balance += [counter_sum]
             if i + 1 != self.__count_years:
                 self.__reinvestment += [self.__credit_balance[i]]
@@ -91,7 +112,7 @@ class FinIndicators:
         for i in range(self.__count_years):
             b = 0
             for j in range(i + 1):
-                if self.__number_of_credit_periods[j] - 1 >= i:
+                if j + self.__number_of_credit_periods[j] - 1 >= i:
                     b += self.__credits_matrix_percentage_per_year[j]
             a += [b]
         a = tuple(a)
@@ -264,19 +285,19 @@ class FinIndicators:
                 pp = i + 1
                 break
         else:
-            pp = 'не окупается'
+            pp = 'Не окупается'
         for i in range(len(cumulative_dcf_fcf)):
             if cumulative_fcf[i] > 0:
                 dpp = i + 1
                 break
         else:
-            dpp = 'не окупается'
+            dpp = 'Не окупается'
         npv = cumulative_dcf_fcf[-1]
         irr = np_f.irr(fcf)
         if math.isnan(irr):
             irr = 'Невозможно посчитать'
         pi = npv / sum(FinIndicators.__discounting(financing_equity, discount_rate))
-        a = dr, pp, dpp, irr, pi
+        a = dr, pp, dpp, npv, irr, pi
         return a
 
     @property
@@ -288,3 +309,14 @@ class FinIndicators:
     def indicators_fcfe(self):
         return FinIndicators.__calculate_indicators(self.__discount_rate_fcfe, self.cumulative_fcfe,
                                                     self.cumulative_dcf_fcfe, self.fcff, self.financing_equity)
+
+    @property
+    def data_frame_properties(self):
+        data_frame = pd.DataFrame(self.properties_list, index=self.name_properties_list)
+        return data_frame
+
+    @property
+    def data_frame_indicators(self):
+        data_frame = pd.DataFrame({'по FCFF': pd.Series(self.indicators_fcff, index=self.name_indicators_list),
+                                   'по FCFE': pd.Series(self.indicators_fcfe, index=self.name_indicators_list)})
+        return data_frame
