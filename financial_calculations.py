@@ -283,13 +283,13 @@ class FinIndicators:
         dr = discount_rate
         for i in range(len(cumulative_fcf)):
             if cumulative_fcf[i] > 0:
-                pp = i + 1
+                pp = i
                 break
         else:
             pp = 'Не окупается'
         for i in range(len(cumulative_dcf_fcf)):
             if cumulative_dcf_fcf[i] > 0:
-                dpp = i + 1
+                dpp = i
                 break
         else:
             dpp = 'Не окупается'
