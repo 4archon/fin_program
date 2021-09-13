@@ -288,7 +288,7 @@ class FinIndicators:
         else:
             pp = 'Не окупается'
         for i in range(len(cumulative_dcf_fcf)):
-            if cumulative_fcf[i] > 0:
+            if cumulative_dcf_fcf[i] > 0:
                 dpp = i + 1
                 break
         else:
@@ -309,7 +309,7 @@ class FinIndicators:
     @cached_property
     def indicators_fcfe(self):
         return FinIndicators.__calculate_indicators(self.__discount_rate_fcfe, self.cumulative_fcfe,
-                                                    self.cumulative_dcf_fcfe, self.fcff, self.financing_equity)
+                                                    self.cumulative_dcf_fcfe, self.fcfe, self.financing_equity)
 
     @cached_property
     def data_frame_properties(self):
