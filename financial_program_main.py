@@ -444,11 +444,12 @@ class Ui_MainWindow(object):
             if len_check(data_tuple):
                 main_object = FinIndicators(*data_tuple)
                 try:
+                    delete_excess_list(self.lineEdit.text(), 'Fin_Calculations')
                     delete_excess_list(self.lineEdit.text(), 'Fin_Indicators')
                     with pd.ExcelWriter(self.lineEdit.text(), mode='a') as writer:
-                        main_object.data_frame_properties.to_excel(writer, startrow=0, startcol=0,
-                                                                   sheet_name='Fin_Indicators')
-                        main_object.data_frame_indicators.to_excel(writer, startrow=29, startcol=0,
+                        main_object.data_frame_properties.to_excel(writer, startrow=1, startcol=1,
+                                                                   sheet_name='Fin_Calculations')
+                        main_object.data_frame_indicators.to_excel(writer, startrow=1, startcol=1,
                                                                    sheet_name='Fin_Indicators')
                 except PermissionError:
                     self.activate_message_box(4)

@@ -1,6 +1,7 @@
 import numpy_financial as np_f
 import math
 import pandas as pd
+from functools import cached_property
 
 
 class FinIndicators:
@@ -106,7 +107,7 @@ class FinIndicators:
         self.__credit_funds = tuple(self.__credit_funds)
         self.__credit_balance = tuple(self.__credit_balance)
 
-    @property
+    @cached_property
     def interests(self):
         a = []
         for i in range(self.__count_years):
@@ -118,7 +119,7 @@ class FinIndicators:
         a = tuple(a)
         return a
 
-    @property
+    @cached_property
     def amortization(self):
         a = []
         for i in range(self.__count_years):
@@ -130,7 +131,7 @@ class FinIndicators:
         a = tuple(a)
         return a
 
-    @property
+    @cached_property
     def debt_change(self):
         a = []
         for i in range(self.__count_years):
@@ -141,31 +142,31 @@ class FinIndicators:
         a = tuple(a)
         return a
 
-    @property
+    @cached_property
     def revenue(self):
         return self.__revenue
 
-    @property
+    @cached_property
     def costs(self):
         return self.__costs
 
-    @property
+    @cached_property
     def capex(self):
         return self.__capex
 
-    @property
+    @cached_property
     def opex(self):
         return self.__opex
 
-    @property
+    @cached_property
     def financing_equity(self):
         return self.__equity_investments
 
-    @property
+    @cached_property
     def financing_reinvestment(self):
         return self.__reinvestment
 
-    @property
+    @cached_property
     def financing_credit(self):
         return self.__credit_funds
 
@@ -177,19 +178,19 @@ class FinIndicators:
         c = tuple(c)
         return c
 
-    @property
+    @cached_property
     def ebitda(self):
         return FinIndicators.__minus(self.revenue, self.opex)
 
-    @property
+    @cached_property
     def ebit(self):
         return FinIndicators.__minus(self.ebitda, self.amortization)
 
-    @property
+    @cached_property
     def ebt(self):
         return FinIndicators.__minus(self.ebit, self.interests)
 
-    @property
+    @cached_property
     def taxes(self):
         tex = 0.2
         a = []
@@ -206,15 +207,15 @@ class FinIndicators:
         a = tuple(a)
         return a
 
-    @property
+    @cached_property
     def net_profit(self):
         return FinIndicators.__minus(self.ebt, self.taxes)
 
-    @property
+    @cached_property
     def change_working_cap(self):
         return self.__change_working_cap
 
-    @property
+    @cached_property
     def fcff(self):
         tex = 1 - 0.2
         a = []
@@ -234,11 +235,11 @@ class FinIndicators:
         c = tuple(c)
         return c
 
-    @property
+    @cached_property
     def cumulative_fcff(self):
         return FinIndicators.__cumulative(self.fcff)
 
-    @property
+    @cached_property
     def fcfe(self):
         tex = 1 - 0.2
         a = []
@@ -247,7 +248,7 @@ class FinIndicators:
         a = tuple(a)
         return a
 
-    @property
+    @cached_property
     def cumulative_fcfe(self):
         return FinIndicators.__cumulative(self.fcfe)
 
@@ -259,19 +260,19 @@ class FinIndicators:
         c = tuple(c)
         return c
 
-    @property
+    @cached_property
     def dcf_fcff(self):
         return FinIndicators.__discounting(self.fcff, self.__discount_rate_fcff)
 
-    @property
+    @cached_property
     def cumulative_dcf_fcff(self):
         return FinIndicators.__cumulative(self.dcf_fcff)
 
-    @property
+    @cached_property
     def dcf_fcfe(self):
         return FinIndicators.__discounting(self.fcfe, self.__discount_rate_fcfe)
 
-    @property
+    @cached_property
     def cumulative_dcf_fcfe(self):
         return FinIndicators.__cumulative(self.dcf_fcfe)
 
@@ -300,22 +301,22 @@ class FinIndicators:
         a = dr, pp, dpp, npv, irr, pi
         return a
 
-    @property
+    @cached_property
     def indicators_fcff(self):
         return FinIndicators.__calculate_indicators(self.__discount_rate_fcff, self.cumulative_fcff,
                                                     self.cumulative_dcf_fcff, self.fcff, self.financing_equity)
 
-    @property
+    @cached_property
     def indicators_fcfe(self):
         return FinIndicators.__calculate_indicators(self.__discount_rate_fcfe, self.cumulative_fcfe,
                                                     self.cumulative_dcf_fcfe, self.fcff, self.financing_equity)
 
-    @property
+    @cached_property
     def data_frame_properties(self):
         data_frame = pd.DataFrame(self.properties_list, index=self.name_properties_list)
         return data_frame
 
-    @property
+    @cached_property
     def data_frame_indicators(self):
         data_frame = pd.DataFrame({'по FCFF': pd.Series(self.indicators_fcff, index=self.name_indicators_list),
                                    'по FCFE': pd.Series(self.indicators_fcfe, index=self.name_indicators_list)})
